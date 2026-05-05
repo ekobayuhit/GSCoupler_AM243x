@@ -32,8 +32,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "ODMaster.h"
 #include "IOCoupler.h"
 
-#include "lwipopts.h"
-
 #if (ACTIVE_PROTOCOL == IOCOUPLER_MODBUSTCP)
 #include "mbs_app.h"
 #endif
@@ -1002,7 +1000,6 @@ void master_loop(void *args)
 #endif
 	while(1){		
 		App_printCpuLoad();
-		DebugP_log("TCP_TMR_INTERVAL = %d\r\n", TCP_TMR_INTERVAL);
 		
 		if(sys_cmd == SYS_CMD_MASTER_RESCAN){
 			DebugP_log("[MASTER] Software Restart Master...\r\n");

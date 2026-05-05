@@ -1,4 +1,9 @@
-static const unsigned char gsp_favicon_ico[] = {
+#include <stdio.h>
+#include <string.h>
+
+#include "IOCoupler.h"
+
+const unsigned char gsp_favicon_ico[] = {
 0x00, 0x00, 0x01, 0x00, 0x05, 0x00, 0x10, 0x10, 0x00, 0x00, 0x00, 0x00, 
 0x20, 0x00, 0x51, 0x02, 0x00, 0x00, 0x56, 0x00, 0x00, 0x00, 0x18, 0x18, 
 0x00, 0x00, 0x00, 0x00, 0x20, 0x00, 0xe6, 0x03, 0x00, 0x00, 0xa7, 0x02, 
@@ -776,4 +781,121 @@ static const unsigned char gsp_favicon_ico[] = {
 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82, 
 };
 
-#define FAVICON_ICO_SIZE 9294
+const unsigned int gsp_favicon_ico_len = sizeof(gsp_favicon_ico);
+
+int generate_io_table(char *html_out, int max_size, IOCoupler_Device *dev)
+{
+    int offset = 0;
+    int written = 0;
+    int validCount = 0;
+
+    if (!html_out || max_size <= 0 || !dev) return 0;
+
+    html_out[0] = '\0';
+
+    // ===== Header =====
+    written = snprintf(html_out + offset, max_size - offset,
+        "<br>"
+        "<table id=\"iotable\" width=\"50%%\">"
+        "<caption>IO Data</caption>"
+        "<tbody>"
+        "<tr>"
+            "<th>ID</th>"
+            "<th>IO Type</th>"
+            "<th>Data Value</th>"
+            "<th>State</th>"
+            "<th>Last Error Type</th>"
+            "<th>Last Error Code</th>"
+        "</tr>"
+    );
+
+    if (written < 0 || written >= (max_size - offset)) return offset;
+    offset += written;
+
+    // ===== Rows =====
+    for (int i = 0; i < dev->numberOfSlaves; i++)
+    {
+        IO_SlaveInfo *s = &dev->slaveInfo[i];
+        if (s->nodeId == 0) continue;
+
+        validCount++;  // count valid IO
+
+        char valueStr[64] = {0};
+
+        // ===== VALUE handling =====
+        if (s->d_ptr != NULL)
+        {
+            IO_DigitalValues *dVal = (IO_DigitalValues *)s->d_ptr;
+
+            for (int b = 15; b >= 0; b--)
+            {
+                valueStr[15 - b] = ((dVal->d_all >> b) & 1) ? '1' : '0';
+            }
+            valueStr[16] = '\0';
+        }
+        else
+        {
+            if (s->a_ptr[0] != NULL)
+            {
+                uint16_t raw = *((uint16_t *)s->a_ptr[0]);
+                snprintf(valueStr, sizeof(valueStr), "%u", raw);
+            }
+            else
+            {
+                snprintf(valueStr, sizeof(valueStr), "0");
+            }
+        }
+
+        // ===== Append row =====
+        written = snprintf(html_out + offset, max_size - offset,
+            "<tr>"
+                "<th>%d</th>"
+                "<td>%d</td>"
+                "<td>%s</td>"
+                "<td>%lu</td>"
+                "<td>%lu</td>"
+                "<td>%lu</td>"
+            "</tr>",
+            s->nodeId,
+            s->productCode,
+            valueStr,
+            s->nodeState,
+            s->last_error_type,
+            s->last_error_code
+        );
+
+        if (written < 0 || written >= (max_size - offset))
+        {
+            break;
+        }
+
+        offset += written;
+    }
+
+    // ===== No IO case =====
+    if (validCount == 0)
+    {
+        written = snprintf(html_out + offset, max_size - offset,
+            "<tr>"
+                "<td colspan=\"6\" style=\"text-align:center;\">No IO data available</td>"
+            "</tr>"
+        );
+
+        if (written > 0 && written < (max_size - offset))
+        {
+            offset += written;
+        }
+    }
+
+    // ===== Footer =====
+    written = snprintf(html_out + offset, max_size - offset,
+        "</tbody></table>"
+    );
+
+    if (written > 0 && written < (max_size - offset))
+    {
+        offset += written;
+    }
+
+    return offset;
+}

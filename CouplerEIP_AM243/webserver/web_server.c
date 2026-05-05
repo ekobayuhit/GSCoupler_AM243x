@@ -50,7 +50,6 @@
 #include "osal_error.h"
 #include "web_server.h"
 #include "web_server_data.h"
-#include "gsp_webserver_data.h"
 #include "lwip/sockets.h"
 #include "lwip/errno.h"
 
@@ -61,8 +60,13 @@
  */
 #define WEB_SERVER_TASK_STACK_SIZE     3072U
 
-
+#define MAX_HTML_SIZE 8192
+/* Extern */
 extern IOCoupler_Device IOCoupler_Devices;
+extern const unsigned char gsp_favicon_ico[];
+extern const unsigned int gsp_favicon_ico_len;
+
+extern int generate_io_table(char *html_out, int max_size, IOCoupler_Device *dev);
 
 /*!
  *  \brief Application Web server task's stack.
@@ -70,7 +74,7 @@ extern IOCoupler_Device IOCoupler_Devices;
 static uint8_t
 WEB_SERVER_taskStack_g[WEB_SERVER_TASK_STACK_SIZE] __attribute__((aligned(32), section(".threadstack"))) = {0};
 
-static char jsonBuf[4096];
+static char jsonBuf[MAX_HTML_SIZE];
 /*!
  *  \brief Application Web server task's object.
  */
@@ -290,7 +294,7 @@ static int WEB_SERVER_processGetAndRespond(int clientFd_p, const char *const pBu
 
         if (ret > 0)
         {
-            ret = send(clientFd_p, gsp_favicon_ico, sizeof(gsp_favicon_ico), 0);
+            ret = send(clientFd_p, gsp_favicon_ico, gsp_favicon_ico_len, 0);
         }
     }
     else if ((strncmp(&pBuf_p[0], "/cpuLoad", 8) == 0))
@@ -383,64 +387,12 @@ static int WEB_SERVER_processGetAndRespond(int clientFd_p, const char *const pBu
     }
     else if ((strncmp(&pBuf_p[0], "/io-data", 8) == 0))
     {
-        // DebugP_log("Receive request /io-data\r\n");
-        uint32_t textSize = 0;
-        memset(jsonBuf, 0, sizeof(jsonBuf));
-        IOCoupler_Device *dev = &IOCoupler_Devices;
+        int len = generate_io_table(jsonBuf, MAX_HTML_SIZE, &IOCoupler_Devices);
 
-        for (int i = 0; i < dev->numberOfSlaves; i++)
+        if (len > 0)
         {
-            IO_SlaveInfo *s = &dev->slaveInfo[i];
-            if (s->nodeId == 0) continue;
-            // ===== ID =====
-            textSize += snprintf(&jsonBuf[textSize], sizeof(jsonBuf) - textSize,
-                "%d,", s->nodeId);
-            // ===== IO TYPE =====
-            textSize += snprintf(&jsonBuf[textSize], sizeof(jsonBuf) - textSize,
-                "%d,", s->productCode);
-
-            // ===== DIGITAL =====
-            if (s->d_ptr != NULL)
-            {
-                IO_DigitalValues *dVal = (IO_DigitalValues *)s->d_ptr;
-                // convert to 16-bit binary manually (no %b!)
-                for (int b = 15; b >= 0; b--)
-                {
-                    jsonBuf[textSize++] = ((dVal->d_all >> b) & 1) ? '1' : '0';
-                }
-                jsonBuf[textSize++] = ',';
-            }
-            else
-            {
-                // ===== ANALOG ===== (send INT instead of float)
-                for (int ch = 0; ch < IO_ANALOG_CHANNEL_NUM; ch++)
-                {
-                    if (s->a_ptr[ch] != NULL)
-                    {
-                        uint16_t raw = *((uint16_t *)s->a_ptr[ch]);
-                        textSize += snprintf(&jsonBuf[textSize], sizeof(jsonBuf) - textSize,
-                            "%u", raw);   // no float
-                    }
-                    else
-                    {
-                        textSize += snprintf(&jsonBuf[textSize], sizeof(jsonBuf) - textSize,
-                            "0");
-                    }
-                    jsonBuf[textSize++] = ',';
-                }
-            }
-            // ===== META =====
-            textSize += snprintf(&jsonBuf[textSize], sizeof(jsonBuf) - textSize,
-                "%lu,%lu,%lu,",
-                s->nodeState,
-                s->last_error_type,
-                s->last_error_code);
+            ret = send(clientFd_p, jsonBuf, len, 0);
         }
-
-        // if (textSize > 0)
-        // {
-            ret = send(clientFd_p, jsonBuf, textSize, 0);
-        // }
     }
     else
     {
