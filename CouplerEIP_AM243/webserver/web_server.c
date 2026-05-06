@@ -49,8 +49,8 @@
 #include "osal.h"
 #include "osal_error.h"
 #include "web_server.h"
-#include "web_server_data.h"
 #include "gspws_html.h"
+#include "gspws_js.h"
 #include "lwip/sockets.h"
 #include "lwip/errno.h"
 
@@ -68,8 +68,6 @@
 extern IOCoupler_Device IOCoupler_Devices;
 extern const unsigned char gsp_favicon_ico[];
 extern const unsigned int gsp_favicon_ico_len;
-extern const unsigned char GespantLogo[];
-extern const unsigned int GespantLogo_len;
 extern int generate_io_table(char *html_out, int max_size, IOCoupler_Device *dev);
 
 /*!
@@ -286,6 +284,17 @@ static int WEB_SERVER_processGetAndRespond(int clientFd_p, const char *const pBu
         
         ret |= send(clientFd_p, html_bottom, strlen(html_bottom), 0);
     }
+    else if ((strncmp(&pBuf_p[0], "/Network.html HTTP/1.1\r\n", 21) == 0))
+    {
+        ret = send(clientFd_p, response_200_content_html, strlen(response_200_content_html), 0);
+        
+        memset(jsonBuf, 0, sizeof(jsonBuf));
+        sprintf(jsonBuf, html_top, "", "", "", "active");
+        ret |= send(clientFd_p, jsonBuf, strlen(jsonBuf), 0);
+        
+        ret |= send(clientFd_p, page_network, strlen(page_network), 0);
+        ret |= send(clientFd_p, html_bottom, strlen(html_bottom), 0);
+    }
     else if (strncmp(pBuf_p, "/style.css HTTP/1.1\r\n", 21) == 0)
     {
         ret = send(clientFd_p, response_200_content_css, strlen(response_200_content_css), 0);
@@ -310,6 +319,15 @@ static int WEB_SERVER_processGetAndRespond(int clientFd_p, const char *const pBu
             ret = send(clientFd_p, wsio_js, strlen(wsio_js), 0);
         }
     }
+    else if ((strncmp(&pBuf_p[0], "/network.js HTTP/1.1\r\n", 19) == 0))
+    {
+        ret = send(clientFd_p, response_200_content_js, strlen(response_200_content_js), 0);
+
+        if (ret > 0)
+        {
+            ret = send(clientFd_p, wsio_js, strlen(wsio_js), 0);
+        }
+    }
     else if ((strncmp(&pBuf_p[0], "/favicon.ico HTTP/1.1\r\n", 23) == 0))
     {
         // get request for favicon.ico
@@ -322,22 +340,36 @@ static int WEB_SERVER_processGetAndRespond(int clientFd_p, const char *const pBu
     }
     else if ((strncmp(&pBuf_p[0], "/logo.png HTTP/1.1\r\n", 16) == 0))
     {
-        char header[128];
+        ret = 1;
+        // char header[128];
 
-        sprintf(header,
-            "HTTP/1.1 200 OK\r\n"
-            "Content-Type: image/png\r\n"
-            "Content-Length: %d\r\n"
-            "Connection: close\r\n"
-            "\r\n",
-            GespantLogo_len);
+        // sprintf(header,
+        //     "HTTP/1.1 200 OK\r\n"
+        //     "Content-Type: image/png\r\n"
+        //     "Content-Length: %u\r\n"
+        //     "Connection: close\r\n"
+        //     "\r\n",
+        //     (unsigned int)GespantLogo_len);
         
-        ret = send(clientFd_p, header, strlen(header), 0);
+        // ret = send(clientFd_p, header, strlen(header), 0);
 
-        if (ret > 0)
-        {
-            ret = send(clientFd_p, GespantLogo, GespantLogo_len, 0);
-        }
+        // if (ret > 0){
+        //     int totalSent = 0;
+        //     while (totalSent < GespantLogo_len)
+        //     {
+        //         int sent = send(clientFd_p, GespantLogo + totalSent,
+        //                         GespantLogo_len - totalSent, 0);
+
+        //         if (sent <= 0)
+        //             break;
+
+        //         totalSent += sent;
+        //     }
+        // }
+        // if (ret > 0)
+        // {
+        //     ret = send(clientFd_p, GespantLogo, GespantLogo_len, 0);
+        // }
     }
     else if ((strncmp(&pBuf_p[0], "/cpuLoad", 8) == 0))
     {
