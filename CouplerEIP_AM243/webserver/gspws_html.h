@@ -1,0 +1,285 @@
+static const char style_css[] =
+":root{"
+"--primary-orange:#fd6005;"
+"--sidebar-grey:#e9ecef;"
+"--sidebar-hover:#dee2e6;"
+"--bg-body:#f8f9fa;"
+"--white:#fff;"
+"--border:#dee2e6;"
+"--text-dark:#495057;"
+"--success:#4caf50;"
+"--danger:#f44336;"
+"--transition:all .3s ease;"
+"}"
+
+/* --- SIDEBAR --- */
+/* --- ORIGINAL GREY SIDEBAR STYLE --- */
+".sidebar-container {"
+"   width: 240px;"
+"   background: #cacaca;"          /* Original Light-Grey Background */
+"   border-right: 1px solid #dee2e6;"
+"   color: #333;"
+"   position: fixed;"
+"   height: 100vh;"
+"   display: flex;"
+"   flex-direction: column;"
+"}"
+
+"header {"
+"   padding: 20px;"
+"   background: #f8f9fa;"         /* Slightly different grey for logo area */
+"   border-bottom: 1px solid #dee2e6;"
+"   text-align: center;"
+"}"
+
+"header img {" 
+"   max-width: 100%;" 
+"   height: auto;" 
+    /* Remove the 'invert' filter if your logo is already dark/colored */
+"}"
+
+".sidebar-nav { flex-grow: 1; margin-top: 10px; }"
+".sidebar-nav ul { list-style: none; }"
+
+".sidebar-nav ul li a {"
+"   padding: 12px 20px;"
+"   display: flex;"
+"   align-items: center;"
+"   color: #495057;"             /* Original Text Color */
+"   text-decoration: none;"
+"   gap: 12px;"
+"   font-weight: 500;"
+"   transition: all 0.2s;"
+"}"
+
+/* Hover Effect: Original Lighter Grey */
+".sidebar-nav ul li a:hover {"
+"   background: #dee2e6;"
+"   color: #000;"
+"}"
+
+/* Active State: Original Orange Accent */
+".sidebar-nav ul li.active a {"
+"   background: #fff;"
+"   color: #fd6005;"             /* Your brand orange */
+"   border-left: 4px solid #fd6005;"
+"}"
+
+".sidebar-footer {"
+"   padding: 15px;"
+"   font-size: 12px;"
+"   color: #6c757d;"
+"   background: #f8f9fa;"
+"   border-top: 1px solid #dee2e6;"
+"   text-align: center;"
+"}"
+
+"*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}"
+"body{background:var(--bg-body);display:flex;min-height:100vh;}"
+
+"main,#content{margin-left:240px;padding:20px;width:calc(100%-240px);}"
+
+".sidebar{width:240px;background:var(--sidebar-grey);position:fixed;height:100%;padding:10px;}"
+".sidebar img{display:block;margin:auto;margin-bottom:10px;}"
+".sidebar a{display:block;padding:10px;color:#333;text-decoration:none;}"
+".sidebar a:hover{background:var(--sidebar-hover);}"
+".active{background:#fff;color:var(--primary-orange);font-weight:bold;}"
+
+".section-title{font-size:1.2rem;font-weight:600;margin-bottom:15px;border-bottom:2px solid var(--border);padding-bottom:5px;}"
+
+".grid,.config-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:15px;}"
+
+".card,.themed-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:15px;box-shadow:0 2px 6px rgba(0,0,0,.05);}"
+
+".btn{padding:10px;border:none;border-radius:6px;cursor:pointer;font-weight:600;}"
+".btn-primary{background:var(--primary-orange);color:#fff;}"
+".btn:hover{opacity:.9;}"
+
+"table,.status-table{width:100%;border-collapse:collapse;font-size:13px;}"
+"th{background:#2f4f6f;color:#fff;padding:6px;}"
+"td{padding:6px;border:1px solid var(--border);}"
+"tr:nth-child(even){background:#f2f2f2;}"
+
+".register-grid{display:grid;grid-template-columns:repeat(auto-fit,72px);}"
+".register-block{width:72px;height:610px;position:relative;box-shadow:0 4px 6px rgba(0,0,0,.3);}"
+
+".bit{width:8px;height:8px;background:#444;}"
+".bit.active{background:#44D62C;box-shadow:0 0 5px #44D62C;}"
+
+".modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:1000;}"
+".modal-content{background:#fff;padding:20px;border-radius:10px;width:400px;}"
+
+".led{position:absolute;width:10px;height:10px;background:#fff;}"
+".led.on{background:lime;box-shadow:0 0 6px lime;}"
+
+"@media(max-width:768px){"
+"main,#content{margin-left:0;width:100%;}"
+".sidebar{display:none;}"
+"}";
+
+static const char header_html[] =
+"HTTP/1.1 200 OK\r\n"
+"Content-Type: text/html\r\n"
+"Connection: close\r\n\r\n";
+
+static const char html_top[] =
+"<!DOCTYPE html><html>"
+"<head>"
+"   <meta charset=\"utf-8\">"
+"   <title>Gespant IO Coupler</title>"
+"   <link rel=\"stylesheet\" href=\"/style.css\">"
+"   <script src=\"main.js\"></script>"
+"   <script src=\"wsio.js\"></script>"
+"</head>"
+"<body onload=\"%s\">"
+
+"   <div id=\"title\">Gespant IO Coupler EtherNet/IP</div>"
+
+"   <div class=\"sidebar-container\">"
+"       <header>"
+// "           <img src=\"/public/img/gespant_withoutlogo.png\" alt=\"Logo\">"
+"       </header>"
+"       <nav class=\"sidebar-nav\">"
+"           <ul>"
+"               <li class=\"%s\"><a href=\"/main.html\"><i class=\"fa-solid fa-house\"></i> <span>Dashboard</span></a></li>"
+"               <li class=\"%s\"><a href=\"/IO_Mapping.html\"><i class=\"fa-solid fa-map\"></i> <span>IO Mapping</span></a></li>"
+"               <li class=\"%s\"><a href=\"/Network.html\"><i class=\"fa-solid fa-network-wired\"></i> <span>Network</span></a></li>"
+"           </ul>"
+"       </nav>"
+"       <div style=\"margin-top: auto; padding: 20px; font-size: 0.75rem; color: #999;\">"
+"           © 2026 Gespant. All rights reserved."
+"       </div>"
+"   </div>"
+
+"   <div id=\"content\">";
+
+static const char html_bottom[] =
+"   </div>"
+"</body></html>";
+
+static const char page_main[] =
+"<h3>CPU Load</h3>"
+"<div id=\"cputable_container\">"
+"   <table id=\"cputable\" width=\"50%\">"
+"       <tr><th>Task Name</th><th>CPU Load</th></tr>"
+
+"       <tr><th id = \"r0c0\"></th><td id = \"r0c1\">0 %</td></tr>"
+"       <tr><th id = \"r1c0\"></th><td id = \"r1c1\">0 %</td></tr>"
+"       <tr><th id = \"r2c0\"></th><td id = \"r2c1\">0 %</td></tr>"
+"       <tr><th id = \"r3c0\"></th><td id = \"r3c1\">0 %</td></tr>"
+"       <tr><th id = \"r4c0\"></th><td id = \"r4c1\">0 %</td></tr>"
+"       <tr><th id = \"r5c0\"></th><td id = \"r5c1\">0 %</td></tr>"
+"       <tr><th id = \"r6c0\"></th><td id = \"r6c1\">0 %</td></tr>"
+"       <tr><th id = \"r7c0\"></th><td id = \"r7c1\">0 %</td></tr>"
+"       <tr><th id = \"r8c0\"></th><td id = \"r8c1\">0 %</td></tr>"
+"       <tr><th id = \"r9c0\"></th><td id = \"r9c1\">0 %</td></tr>"
+"       <tr><th id = \"r10c0\"></th><td id = \"r10c1\">0 %</td></tr>"
+"       <tr><th id = \"r11c0\"></th><td id = \"r11c1\">0 %</td></tr>"
+"       <tr><th id = \"r12c0\"></th><td id = \"r12c1\">0 %</td></tr>"
+"       <tr><th id = \"r13c0\"></th><td id = \"r13c1\">0 %</td></tr>"
+"       <tr><th id = \"r14c0\"></th><td id = \"r14c1\">0 %</td></tr>"
+"       <tr><th id = \"r15c0\"></th><td id = \"r15c1\">0 %</td></tr>"
+"       <tr><th id = \"r16c0\"></th><td id = \"r16c1\">0 %</td></tr>"
+"       <tr><th id = \"r17c0\"></th><td id = \"r17c1\">0 %</td></tr>"
+"       <tr><th id = \"r18c0\"></th><td id = \"r18c1\">0 %</td></tr>"
+"       <tr><th id = \"r19c0\"></th><td id = \"r19c1\">0 %</td></tr>"
+"   </table>"
+"</div";
+
+static const char page_iomap[] =
+"<div class=\"section-title\">"
+"   <i class=\"fa-solid fa-map\" style=\"color: var(--primary-orange);\"></i>"
+"       IO Mapping Configuration"
+"</div>"
+
+"<div style=\"margin-bottom:25px;font-size:0.9rem;color:#555;\">"
+"   Coupler Type: <b style=\"color:var(--primary-orange);\">%s</b> | "
+"   FW Version: <b>%s</b>"
+"</div>"
+
+"<div class=\"config-grid\">"
+"   <div class=\"themed-card\">"
+"       <div class=\"card-title\">"
+"           <i class=\"fa-solid fa-radar\" style=\"color: var(--primary-orange);\"></i>"
+"                    Scan Devices"
+"       </div>"
+"       <div class=\"form-row\">"
+"           <div class=\"input-group\">"
+"               <div id=\"progressContainer\" style=\"display: none; width: 150px; height: 8px; background: #eee; border-radius: 4px; overflow: hidden; margin-bottom: 8px;\">"
+"                   <div id=\"progressBar\" style=\"width: 0%; height: 100%; background: var(--primary-orange); transition: 0.3s;\"></div>"
+"               </div>"
+"               <button id=\"scanButton\" class=\"btn-action\" style=\"width: 150px;\">"
+"                   <i class=\"fa-solid fa-magnifying-glass\"></i> Scan"
+"               </button>"
+"           </div>"
+                    
+"           <div style=\"flex-grow: 1;\">"
+"               <table class=\"status-table\">"
+"                   <thead>"
+"                       <tr>"
+"                           <th>DI</th><th>DO</th><th>AIC</th><th>AIV</th><th>AOC</th><th>AOV</th><th>RTDY</th><th>RTDB</th>"
+"                       </tr>"
+"                   </thead>"
+"                   <tbody>"
+"                       <tr>"
+"                           <td id=\"DICount\">-</td><td id=\"DOCount\">-</td><td id=\"AICCount\">-</td>"
+"                           <td id=\"AIVCount\">-</td><td id=\"AOCCount\">-</td><td id=\"AOVCount\">-</td>"
+"                           <td id=\"RTDYCount\">-</td><td id=\"RTDBCount\">-</td>"
+"                       </tr>"
+"                   </tbody>"
+"               </table>"
+"           </div>"
+"           </div>"
+"   </div>"
+
+"   <div class=\"themed-card\">"
+"       <div class=\"card-title\">"
+"           <i class=\"fa-solid fa-gears\" style=\"color: var(--primary-orange);\"></i>"
+"               Device Configuration"
+"       </div>"
+"       <form id=\"modbusConfigForm\" class=\"form-row\">"
+"       <div class=\"input-group\">"
+"           <label>Coupler Name</label>"
+"           <input type=\"text\" id=\"ioCouplerName\" class=\"form-input\" style=\"width: 120px;\" placeholder=\"Name\">"
+"       </div>"
+"       <div class=\"input-group\">"
+"           <label>CAN Bitrate</label>"
+"           <input list=\"baudRates\" id=\"baudRateInput\" class=\"form-input\" style=\"width: 110px;\" placeholder=\"Baudrate\">"
+"           <datalist id=\"baudRates\">"
+"               <option value=\"1000000\">"
+"           </datalist>"
+"       </div>"
+"       <div class=\"input-group\">"
+"           <label>TCP Port</label>"
+"           <select id=\"tcpPortInput\" class=\"form-input\" style=\"width: 80px;\">"
+"               <option value=\"502\">502</option>"
+"               <option value=\"1502\">1502</option>"
+"               <option value=\"2502\">2502</option>"
+"           </select>"
+"       </div>"
+"       <button type=\"submit\" class=\"btn-action\" style=\"height: 38px;\">Apply</button>"
+"       </form>"
+"       <div id=\"configStatus\" style=\"padding: 0 20px 15px; font-size: 0.8rem;\"></div>"
+"   </div>"
+"</div>"
+        
+"<div class=\"card_io\">"
+"   <div class=\"card-header\">"
+"       <h3>IO Module Overview</h3>"
+"       <div id=\"iotable_container\">"
+"           <table id=\"iotable\" width=\"50%\">"
+"               <tbody>"
+"                   <tr>"
+"                       <th>ID</th>"
+"                       <th>IO Type</th>"
+"                       <th>Data Value</th>"
+"                       <th>State</th>"
+"                       <th>Last Error Type</th>"
+"                       <th>Last Error Code</th>"
+"                   </tr>"
+"                   <tr><td colspan=\"6\">Loading...</td></tr>"
+"               </tbody>"
+"           </table>"
+"       </div>"
+"   </div>"
+"</div>";

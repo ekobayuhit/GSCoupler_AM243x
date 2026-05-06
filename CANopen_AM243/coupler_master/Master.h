@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "canfestival.h"
 
 #define MASTER_TYPE	        "Coupler-Alpha-Test"
-#define MASTER_FW_VERSION	"Alpha-1.0.0-260426"
+#define MASTER_FW_VERSION	"Alpha-1.0.0-050526"
 
 typedef void (*TaskCallback_t)(void *);
 
