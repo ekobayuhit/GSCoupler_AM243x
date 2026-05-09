@@ -281,7 +281,18 @@ static int WEB_SERVER_processGetAndRespond(int clientFd_p, const char *const pBu
         memset(jsonBuf, 0, sizeof(jsonBuf));
         sprintf(jsonBuf, page_iomap, MASTER_TYPE, MASTER_FW_VERSION);
         ret |= send(clientFd_p, jsonBuf, strlen(jsonBuf), 0);
-        
+    
+        int svg_image_len = sizeof(svg_image);
+        int totalSent = 0;
+        while (totalSent < svg_image_len)
+        {
+            int sent = send(clientFd_p, svg_image + totalSent,
+                            svg_image_len - totalSent, 0);
+            if (sent <= 0)
+                break;
+            totalSent += sent;
+        }
+
         ret |= send(clientFd_p, html_bottom, strlen(html_bottom), 0);
     }
     else if ((strncmp(&pBuf_p[0], "/Network.html HTTP/1.1\r\n", 21) == 0))
