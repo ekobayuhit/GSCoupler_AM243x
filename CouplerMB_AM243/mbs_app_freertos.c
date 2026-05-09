@@ -54,6 +54,8 @@
 #define MODBUSSLAVE_THREAD_STACKSIZE 1024
 #define MODBUSSLAVE_THREAD_PRIO 6
 
+static TaskHandle_t ModbusServerTask;
+
 MbsDeviceChannelConfig mbs_app_deviceChannelConfig;
 static MbsTcpServer tcpServer;
 static nmbs_callbacks callbacks;
@@ -141,11 +143,17 @@ static int32_t MbsApp_newClientConnected(MbsTcpServer tcpServer, MbsTcpClient cl
         printf("Closing previous client...\r\n");
 
         g_requestClose = true;
+        uint32_t count_wait = 0;
         // wait until task cleans up
         while (deviceChannel != NULL)
         {
             printf("Waiting task terminated!...\r\n");
             vTaskDelay(pdMS_TO_TICKS(1000));
+            count_wait++;
+            if(count_wait > 5){
+                MbsDeviceChannel_destroy(deviceChannel);
+                vTaskDelete(ModbusServerTask);
+            }
         }
     }
     
@@ -166,7 +174,7 @@ static int32_t MbsApp_newClientConnected(MbsTcpServer tcpServer, MbsTcpClient cl
                 MODBUSSLAVE_THREAD_STACKSIZE,
                 NULL,
                 MODBUSSLAVE_THREAD_PRIO,
-                NULL))
+                &ModbusServerTask))
         {
             printf("Cannot create task for %p\r\n", client);
 
