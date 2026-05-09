@@ -10,8 +10,9 @@
 /******************************************************************/
 // Protocol
 #define IOCOUPLER_ETHERNETIP    (1)
-#define IOCOUPLER_MODBUSTCP     (2)
-#define IOCOUPLER_COMM_NONE     (3)
+#define IOCOUPLER_ECAT          (2)
+#define IOCOUPLER_MODBUSTCP     (3)
+#define IOCOUPLER_COMM_NONE     (4)
 
 #ifndef ACTIVE_PROTOCOL
 #define ACTIVE_PROTOCOL         (IOCOUPLER_COMM_NONE)

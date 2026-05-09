@@ -129,6 +129,14 @@ int find_slave_index_by_nodeId(uint8_t nodeId)
 /* ========================================================= */
 /* Data synchronization                                      */
 /* ========================================================= */
+bool isMaster_running(void){
+	return ( (getState(&Master_Data) == Operational) ? true : false );
+}
+
+uint8_t getNumIOSlave(void){
+	return IOCoupler_Devices.numberOfSlaves;
+}
+
 #if (ACTIVE_PROTOCOL == IOCOUPLER_MODBUSTCP)
 void sync_mb_coil(void)
 {
@@ -222,14 +230,6 @@ void sync_mb_di(void)
 #endif
 
 #if (ACTIVE_PROTOCOL == IOCOUPLER_ETHERNETIP)
-
-bool isMaster_running(void){
-	return ( (getState(&Master_Data) == Operational) ? true : false );
-}
-
-uint8_t getNumIOSlave(void){
-	return IOCoupler_Devices.numberOfSlaves;
-}
 
 void BuildProcessImage()
 {
