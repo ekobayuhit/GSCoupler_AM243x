@@ -9,8 +9,7 @@ Add LWIP_SUPPORT macro
 -I"${workspace_loc:/${ProjName}}"  
 -I"${workspace_loc:/${ProjName}/driver}" 
 
--I"${workspace_loc:/${ProjName}}/common" -I"${workspace_loc:/${ProjName}}/common/os" -I"${workspace_loc:/${ProjName}}/common/os/freertos" -I"${workspace_loc:/${ProjName}}/common/board/am243x-lp" -I"${workspace_loc:/${ProjName}}/common/board/am243x-lp/freertos" 
-
+-I"${workspace_loc:/${ProjName}}/device_profiles/webserver" -I"${workspace_loc:/${ProjName}}/common" -I"${workspace_loc:/${ProjName}}/common/os" -I"${workspace_loc:/${ProjName}}/common/os/freertos" -I"${workspace_loc:/${ProjName}}/common/board/am243x-lp" -I"${workspace_loc:/${ProjName}}/common/board/am243x-lp/freertos" 
 
 Original:
 -I"${INDUSTRIAL_COMMUNICATIONS_SDK_PATH}/examples/industrial_comms/ethercat_subdevice_demo/device_profiles/webserver" 

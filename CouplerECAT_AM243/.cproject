@@ -203,7 +203,6 @@
                                     <listOptionValue value="${MCU_PLUS_SDK_PATH}/source/kernel/freertos/FreeRTOS-Kernel/include"/>
                                     <listOptionValue value="${MCU_PLUS_SDK_PATH}/source/kernel/freertos/portable/TI_ARM_CLANG/ARM_CR5F"/>
                                     <listOptionValue value="${MCU_PLUS_SDK_PATH}/source/kernel/freertos/config/am243x/r5f"/>
-                                    <listOptionValue value="${INDUSTRIAL_COMMUNICATIONS_SDK_PATH}/examples/industrial_comms/ethercat_subdevice_demo/device_profiles/webserver"/>
                                     <listOptionValue value="${INDUSTRIAL_COMMUNICATIONS_SDK_PATH}/examples/industrial_comms/custom_phy/inc"/>
                                     <listOptionValue value="${INDUSTRIAL_COMMUNICATIONS_SDK_PATH}/examples/industrial_comms/nvm/app/inc"/>
                                     <listOptionValue value="${INDUSTRIAL_COMMUNICATIONS_SDK_PATH}/examples/industrial_comms/nvm/drv/inc"/>
@@ -224,6 +223,7 @@
                                     <listOptionValue value="${workspace_loc:/${ProjName}}/common/os/freertos"/>
                                     <listOptionValue value="${workspace_loc:/${ProjName}}/common/board/am243x-lp"/>
                                     <listOptionValue value="${workspace_loc:/${ProjName}}/common/board/am243x-lp/freertos"/>
+                                    <listOptionValue value="${workspace_loc:/${ProjName}}/device_profiles/webserver"/>
                                 </option>
                                 <option id="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.DEFINE.441224167" superClass="com.ti.ccstudio.buildDefinitions.TMS470_TICLANG_4.0.compilerID.DEFINE" valueType="definedSymbols">
                                     <listOptionValue value="${SYSCONFIG_TOOL_SYMBOLS}"/>

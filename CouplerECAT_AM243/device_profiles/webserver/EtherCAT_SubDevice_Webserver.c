@@ -41,7 +41,6 @@
 
 /* this one shall the only one to be using it ! */
 #include <kernel/dpl/DebugP.h>
-
 #include "project.h"
 #include "ecSubDeviceWebserver.h"
 
@@ -201,17 +200,6 @@ static void EC_SLV_APP_SS_loopTask(void* pArg_p)
         goto Exit;
     }
 
-    //Delay until CANOpen Master running
-    int count_wait = 0;
-    while(!isMaster_running()){
-        DebugP_log("[EIP] Waiting CANopen Master running and complete the scanning IO process...%d \r\n", count_wait++);
-        ClockP_sleep(1);
-    }
-    while(getNumIOSlave() == 0){
-        DebugP_log("[EIP] No IO Slave found, EIP not start. Please Check the IO slave and Power Cycle Coupler !\r\n");
-        ClockP_sleep(1);
-    }
-
     EC_SLV_APP_SS_initBoardFunctions(pApplicationInstance);
     EC_SLV_APP_SS_registerStacklessBoardFunctions(pApplicationInstance);
 
@@ -324,6 +312,17 @@ static void EC_SLV_APP_SS_mainTask(void* pArg_p)
     {
         OSAL_error(__func__, __LINE__, OSAL_ERR_InvalidParm, true, 1, "Application instance missing!!!\r\n");
         goto Exit;
+    }
+
+    // vTaskSuspend(NULL);
+    // int count_wait = 0;
+    while(!isMaster_running()){
+        // DebugP_log("[EIP] Waiting CANopen Master running and complete the scanning IO process...%d \r\n", count_wait++);
+        vTaskDelay(1);
+    }
+    while(getNumIOSlave() == 0){
+        // DebugP_log("[EIP] No IO Slave found, EIP not start. Please Check the IO slave and Power Cycle Coupler !\r\n");
+        vTaskDelay(1);
     }
 
     retVal = ESL_OS_boardInit(applicationInstance->selectedPruInstance);
@@ -469,11 +468,9 @@ int main(int argc, char *argv[])
         OSAL_printf("Error setting create thread of %s (%ld)\r\n", applicationInstance.mainThreadParam.name, error);
         OSAL_error(__func__, __LINE__, OSAL_STACK_INIT_ERROR, true, 0);
     }
-
-    /* Integrate CANopen Master */
-    master_main();
-    /**/
     
+    master_main();
+
     OSAL_startOs();
 
     OSAL_error(__func__, __LINE__, OSAL_ERR_InvalidParm, true, 1, "Not reachable by design!!!\r\n");

@@ -92,7 +92,9 @@ task_t task[] =
     {TASK_CAN_TIMER, 1, TIMER_TASK_SIZE, gTimerTaskStack, &gTimerTaskObj, NULL, TimerTaskLoop},
 	{TASK_CAN_RX, 2, CAN_RX_TASK_SIZE,  gRXTaskStack,  &gRXTaskObj,  NULL, canRecv_Task},
     {TASK_CAN_RPDO, 2, RPDO_TASK_SIZE,  gRPDOTaskStack,  &gRPDOTaskObj,  NULL, RecvPDOLoop},
+#if (ACTIVE_PROTOCOL != IOCOUPLER_ECAT)
     {TASK_CAN_TPDO, 2, TPDO_TASK_SIZE,  gTPDOTaskStack,  &gTPDOTaskObj,  NULL, SendPDOLoop}
+#endif
 #if (ACTIVE_PROTOCOL == IOCOUPLER_MODBUSTCP)
     ,{TASK_INDS_COM, 7, INDSCOM_TASK_SIZE, gCOMTaskStack, &gCOMTaskObj, NULL, appMain}
 #endif
@@ -229,8 +231,6 @@ void sync_mb_di(void)
 }
 #endif
 
-#if (ACTIVE_PROTOCOL == IOCOUPLER_ETHERNETIP)
-
 void BuildProcessImage()
 {
     uint16_t inOffset = 0;
@@ -266,6 +266,8 @@ void BuildProcessImage()
         }
     }
 }
+
+#if (ACTIVE_PROTOCOL == IOCOUPLER_ETHERNETIP)
 
 void UpdateInputProcessImage(void)
 {
@@ -344,6 +346,19 @@ void UpdateOutputModules(void)
 }
 #endif
 
+#if (ACTIVE_PROTOCOL == IOCOUPLER_ECAT)
+// static TaskHandle_t task_inds_comm_ecat = NULL;
+// void set_task_handle(TaskHandle_t *taskh){
+// 	task_inds_comm_ecat = taskh;
+// }
+
+// void start_inds_comm_ecat(){
+// 	vTaskResume(task_inds_comm_ecat);
+// }
+// void stop_inds_comm_ecat(){
+// 	vTaskSuspend(task_inds_comm_ecat);
+// }
+#endif
 /* ========================================================= */
 void RecvPDOLoop(void *args)
 {
@@ -364,29 +379,26 @@ void RecvPDOLoop(void *args)
 void SendPDOLoop(void *args)
 {
 	(void)args;
-	
-#if (ACTIVE_PROTOCOL == IOCOUPLER_ETHERNETIP)
-    CO_Data* d = &Master_Data;
 
-    UNS16 last_do[MAX_IO_DEVICES];
-    UNS16 curr_do[MAX_IO_DEVICES];
-	UNS8 pdonum = 0;
-	
-	for(int i = 0; i < IOCoupler_Devices.numberOfOutputSlaves; i++){
-		last_do[i] = 0xFFFF; /* invalid initial value */
-	}
-#endif
 	vTaskSuspend(NULL);
-	// while(getState(d) != Operational){
-	// 	vTaskDelay(1000);
-	// }
+
 #if (ACTIVE_PROTOCOL == IOCOUPLER_MODBUSTCP)
 	while(1){
 		sync_mb_coil();
 		sync_mb_di();
 		vTaskDelay(1);
 	}
-#elif (ACTIVE_PROTOCOL == IOCOUPLER_ETHERNETIP)
+#endif
+    CO_Data* d = &Master_Data;
+
+    UNS16 last_do[MAX_IO_DEVICES];
+    UNS16 curr_do[MAX_IO_DEVICES];
+	UNS8 pdonum = 0;
+	
+	for(int i = 0; i < MAX_IO_DEVICES; i++){
+		last_do[i] = 0xFFFF; /* invalid initial value */
+	}
+
 	while (1)
 	{
 		for(int i = 0; i < IOCoupler_Devices.numberOfSlaves; i++){
@@ -482,18 +494,17 @@ void SendPDOLoop(void *args)
 				sendOnePDOevent(d, pdonum);
 				last_do[pdonum] = curr_do[pdonum];
 
-				// DebugP_log(
-				// 	"PDO_LOOP DO nodeId=0x%02X pdonum=%d curr=0x%04X raw=0x%04X\r\n",
-				// 	IOCoupler_Devices.slaveInfo[i].nodeId,
-				// 	pdonum,
-				// 	curr_do[pdonum],
-				// 	*(UNS16 *)IOCoupler_Devices.slaveInfo[i].d_ptr
-				// );
+				DebugP_log(
+					"PDO_LOOP DO nodeId=0x%02X pdonum=%d curr=0x%04X raw=0x%04X\r\n",
+					IOCoupler_Devices.slaveInfo[i].nodeId,
+					pdonum,
+					curr_do[pdonum],
+					*(UNS16 *)IOCoupler_Devices.slaveInfo[i].d_ptr
+				);
 			}
 		}
 		vTaskDelay(1);
 	}
-#endif
 }
 
 /************************  Master  Callback Function ****************************/
@@ -550,9 +561,9 @@ void Master_preOperational(CO_Data* d)
 	// 	vTaskDelay(5);
 	// }
 	masterSendNMTstateChange (d, 0x00, NMT_Start_Node);
-
-#if (ACTIVE_PROTOCOL == IOCOUPLER_ETHERNETIP)
-	BuildProcessImage();
+	
+#if ((ACTIVE_PROTOCOL == IOCOUPLER_ETHERNETIP) || (ACTIVE_PROTOCOL == IOCOUPLER_ECAT))
+    BuildProcessImage();
 #endif
 
 	vTaskDelay(100);
@@ -926,6 +937,7 @@ static void master_start_tasks(void){
 		vTaskResume(task[TASK_INDS_COM].TaskHandle);
 	}
 #endif
+
 	if(task[TASK_CAN_TPDO].TaskHandle){
 		vTaskResume(task[TASK_CAN_TPDO].TaskHandle);
 	}
@@ -937,6 +949,7 @@ static void master_stop_tasks(void){
 		vTaskSuspend(task[TASK_INDS_COM].TaskHandle);
 	}
 #endif
+
 	if(task[TASK_CAN_TPDO].TaskHandle){
 		vTaskSuspend(task[TASK_CAN_TPDO].TaskHandle);
 	}
