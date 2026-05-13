@@ -294,7 +294,7 @@ void canRecv_Task(void *args)
                     data);
 #endif
         }
-        // vTaskDelay(1);
+        vTaskDelay(1);
 #endif  /* MCAN_MODE_POLLING */
 
 #if (APP_MCAN_MODE == MCAN_MODE_INTERRUPT)        

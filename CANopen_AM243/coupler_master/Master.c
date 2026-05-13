@@ -88,15 +88,15 @@ StaticTask_t gCOMTaskObj;
 
 task_t task[] =
 {
-    {TASK_MAIN, 9, MAIN_TASK_SIZE,  gMainTaskStack,  &gMainTaskObj,  NULL, master_loop},
-    {TASK_CAN_TIMER, 1, TIMER_TASK_SIZE, gTimerTaskStack, &gTimerTaskObj, NULL, TimerTaskLoop},
-	{TASK_CAN_RX, 2, CAN_RX_TASK_SIZE,  gRXTaskStack,  &gRXTaskObj,  NULL, canRecv_Task},
-    {TASK_CAN_RPDO, 2, RPDO_TASK_SIZE,  gRPDOTaskStack,  &gRPDOTaskObj,  NULL, RecvPDOLoop},
+    {TASK_MAIN, 1, MAIN_TASK_SIZE,  gMainTaskStack,  &gMainTaskObj,  NULL, master_loop},
+    {TASK_CAN_TIMER, configMAX_PRIORITIES-2, TIMER_TASK_SIZE, gTimerTaskStack, &gTimerTaskObj, NULL, TimerTaskLoop},
+	{TASK_CAN_RX, configMAX_PRIORITIES-1, CAN_RX_TASK_SIZE,  gRXTaskStack,  &gRXTaskObj,  NULL, canRecv_Task},
+    {TASK_CAN_RPDO, configMAX_PRIORITIES-1, RPDO_TASK_SIZE,  gRPDOTaskStack,  &gRPDOTaskObj,  NULL, RecvPDOLoop},
 #if (ACTIVE_PROTOCOL != IOCOUPLER_ECAT)
-    {TASK_CAN_TPDO, 2, TPDO_TASK_SIZE,  gTPDOTaskStack,  &gTPDOTaskObj,  NULL, SendPDOLoop}
+    {TASK_CAN_TPDO, configMAX_PRIORITIES-2, TPDO_TASK_SIZE,  gTPDOTaskStack,  &gTPDOTaskObj,  NULL, SendPDOLoop}
 #endif
 #if (ACTIVE_PROTOCOL == IOCOUPLER_MODBUSTCP)
-    ,{TASK_INDS_COM, 7, INDSCOM_TASK_SIZE, gCOMTaskStack, &gCOMTaskObj, NULL, appMain}
+    ,{TASK_INDS_COM, 5, INDSCOM_TASK_SIZE, gCOMTaskStack, &gCOMTaskObj, NULL, appMain}
 #endif
 };
 
