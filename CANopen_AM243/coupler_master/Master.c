@@ -494,13 +494,13 @@ void SendPDOLoop(void *args)
 				sendOnePDOevent(d, pdonum);
 				last_do[pdonum] = curr_do[pdonum];
 
-				DebugP_log(
-					"PDO_LOOP DO nodeId=0x%02X pdonum=%d curr=0x%04X raw=0x%04X\r\n",
-					IOCoupler_Devices.slaveInfo[i].nodeId,
-					pdonum,
-					curr_do[pdonum],
-					*(UNS16 *)IOCoupler_Devices.slaveInfo[i].d_ptr
-				);
+				// DebugP_log(
+				// 	"PDO_LOOP DO nodeId=0x%02X pdonum=%d curr=0x%04X raw=0x%04X\r\n",
+				// 	IOCoupler_Devices.slaveInfo[i].nodeId,
+				// 	pdonum,
+				// 	curr_do[pdonum],
+				// 	*(UNS16 *)IOCoupler_Devices.slaveInfo[i].d_ptr
+				// );
 			}
 		}
 		vTaskDelay(1);
