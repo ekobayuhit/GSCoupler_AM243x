@@ -40,19 +40,11 @@
  */
 #include "cfg_example.h"
 
+#include "osal.h"
 #include "cmn_app.h"
 
 static TaskP_Object CMN_APP_mainHandle_s;
 static TaskP_Params CMN_APP_mainParam_s;
-
-#ifdef CMN_APP_MAIN_STACK_SIZE_IN_BYTES
-#undef CMN_APP_MAIN_STACK_SIZE_IN_BYTES
-#define CMN_APP_MAIN_STACK_SIZE_IN_BYTES    0x1500
-#endif
-#ifdef CMN_APP_MAIN_STACK_SIZE
-#undef CMN_APP_MAIN_STACK_SIZE
-#define CMN_APP_MAIN_STACK_SIZE             (CMN_APP_MAIN_STACK_SIZE_IN_BYTES/sizeof(configSTACK_DEPTH_TYPE))
-#endif
 
 static StackType_t CMN_APP_aMainStack_s[CMN_APP_MAIN_STACK_SIZE] __attribute__((aligned(32), section(".threadstack"))) = {0};
 
@@ -107,7 +99,6 @@ void CMN_APP_mainCreate (CMN_APP_CBTask_t               cbTask_p
         OSAL_printf("Error setting create thread of %s (%ld)\r\n", CMN_APP_mainParam_s.name, err);
         OSAL_error(__func__, __LINE__, OSAL_STACK_INIT_ERROR, true, 0);
     }
-
 }
 
 /*!

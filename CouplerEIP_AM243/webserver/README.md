@@ -2,5 +2,5 @@ WebServer Assets Tools:
  - https://notisrac.github.io/FileToCArray/
 
  Create SVG image:
- - https://www.freeconvert.com/png-to-svg/download
+ - https://imagy.app/compress-svg/
  - https://www.svgviewer.dev/

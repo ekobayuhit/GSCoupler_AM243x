@@ -294,7 +294,9 @@ void canRecv_Task(void *args)
                     data);
 #endif
         }
+#if (ACTIVE_PROTOCOL != IOCOUPLER_ETHERNETIP)
         vTaskDelay(1);
+#endif
 #endif  /* MCAN_MODE_POLLING */
 
 #if (APP_MCAN_MODE == MCAN_MODE_INTERRUPT)        
